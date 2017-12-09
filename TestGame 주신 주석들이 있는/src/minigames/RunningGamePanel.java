@@ -1,4 +1,4 @@
-package minigames;
+package testpackage;
 
 import java.awt.Dimension;
 import java.awt.Font;
@@ -25,191 +25,194 @@ import javax.swing.JPanel;
 class RunningGamePanel extends JPanel implements Runnable, KeyListener{
 
 
-	private JFrame 				frame;			// ÇÁ·¹ÀÓ °´Ã¼
-	public  float 				player_x, player_y;	// ÇÃ·¹ÀÌ¾î(Ä³¸¯ÅÍ)ÀÇ x,y ÁÂÇ¥
+	private JFrame 				frame;			// í”„ë ˆì„ ê°ì²´
+	public  float 				player_x, player_y;	// í”Œë ˆì´ì–´(ìºë¦­í„°)ì˜ x,y ì¢Œí‘œ
 	private float 				barrier_speed; 	// player, barrier speed
 	private int 				f_width, f_height;	// screen's width & height excluding window components
-	private int 				back_x = 0; 	// ÀüÃ¼ ¹è°æ ½ºÅ©·Ñ ¿ë º¯¼ö
+	private int 				back_x = 0; 	// ì „ì²´ ë°°ê²½ ìŠ¤í¬ë¡¤ ìš© ë³€ìˆ˜
 
-	private int 				cnt;			// Àå¾Ö¹°³ª¿À´Â ¼Óµµ¸¦ Á¶ÀıÇÒ ¼ö ÀÖ´Â º¯¼ö 	
-	private int 				player_JumpCount;	// Ä³¸¯ÅÍÀÇ Á¡ÇÁ¸¦ Ä«¿îÆ®ÇØ¼­  Á¡ÇÁx,1,2´Ü Á¡ÇÁ »óÅÂ¸¦ ±¸ºĞÇØÁÜ
-	private int 				game_Score; 	// °ÔÀÓ Á¡¼ö °è»ê
-	private boolean 			KeyUp, crashed;	// ½ºÆäÀÌ½º¹Ù¸¦ ´­·¶´Ù ¶®À»¶§¸¦ ¾Ë·ÁÁÖ´Â °ª, Ãæµ¹¿©ºÎ¸¦ ¾Ë·ÁÁÖ´Â °ª
+	private int 				cnt;			// ì¥ì• ë¬¼ë‚˜ì˜¤ëŠ” ì†ë„ë¥¼ ì¡°ì ˆí•  ìˆ˜ ìˆëŠ” ë³€ìˆ˜ 	
+	private int 				player_JumpCount;	// ìºë¦­í„°ì˜ ì í”„ë¥¼ ì¹´ìš´íŠ¸í•´ì„œ  ì í”„x,1,2ë‹¨ ì í”„ ìƒíƒœë¥¼ êµ¬ë¶„í•´ì¤Œ
+	private int 				game_Score; 	// ê²Œì„ ì ìˆ˜ ê³„ì‚°
+	private boolean 			KeyUp, crashed;	// ìŠ¤í˜ì´ìŠ¤ë°”ë¥¼ ëˆŒë €ë‹¤ ë• ì„ë•Œë¥¼ ì•Œë ¤ì£¼ëŠ” ê°’, ì¶©ëŒì—¬ë¶€ë¥¼ ì•Œë ¤ì£¼ëŠ” ê°’
 	
-	private JumpThread 			jt;				// Á¡ÇÁ ½º·¹µå¸¦ À§ÇÑ °´Ã¼
-	private Thread 				th;				// ¸ŞÀÎ ½º·¹µå¸¦ À§ÇÑ °´Ã¼
-	private Toolkit 			tk = Toolkit.getDefaultToolkit();	//ÀÌ¹ÌÁö¸¦ ºÒ·¯¿À±â À§ÇÑ ÅøÅ¶
-	private Image 				Player_img;		// ÇÃ·¹ÀÌ¾î(Ä³¸¯ÅÍ)ÀÌ¹ÌÁö
-	private Image 				BackGround_img; // ¹è°æÈ­¸é ÀÌ¹ÌÁö
-	private Image 				Barrier_img; 	// Àå¾Ö¹° ÀÌ¹ÌÁö
-	private ArrayList<Barrier>	Barrier_List;	// Àå¾Ö¹°ÀÌ °è¼ÓÇØ¼­ ³ª¿À°ÔÇØÁÖ´Â ¹è¿­
-	private Image 				buffImage; 		// ÀÌ¹ÌÁöÀÇ buffImage °´Ã¼
-	private Graphics 			buffg;			// ±×·¡ÇÈ½ºÀÇ buffg °´Ã¼
-	private Barrier 			en; 			// Àå¾Ö¹°ÀÇ ÀÌµ¿¼Óµµ °´Ã¼
-	private File 				jumpEfx, bgm;	// Á¡ÇÁÇÒ¶§È¿°úÀ½, °ÔÀÓ¹è°æÀ½ À» À§ÇÑ °´Ã¼
-	private Clip				bgmClip;		// ¿Àµğ¿À ÆÄÀÏ °´Ã¼
+	private JumpThread 			jt;				// ì í”„ ìŠ¤ë ˆë“œë¥¼ ìœ„í•œ ê°ì²´
+	private Thread 				th;				// ë©”ì¸ ìŠ¤ë ˆë“œë¥¼ ìœ„í•œ ê°ì²´
+	private Toolkit 			tk = Toolkit.getDefaultToolkit();	//ì´ë¯¸ì§€ë¥¼ ë¶ˆëŸ¬ì˜¤ê¸° ìœ„í•œ íˆ´í‚·
+	private Image 				Player_img;		// í”Œë ˆì´ì–´(ìºë¦­í„°)ì´ë¯¸ì§€
+	private Image 				BackGround_img; // ë°°ê²½í™”ë©´ ì´ë¯¸ì§€
+	private Image 				Barrier_img; 	// ì¥ì• ë¬¼ ì´ë¯¸ì§€
+	private ArrayList<Barrier>	Barrier_List;	// ì¥ì• ë¬¼ì´ ê³„ì†í•´ì„œ ë‚˜ì˜¤ê²Œí•´ì£¼ëŠ” ë°°ì—´
+	private Image 				buffImage; 		// ì´ë¯¸ì§€ì˜ buffImage ê°ì²´
+	private Graphics 			buffg;			// ê·¸ë˜í”½ìŠ¤ì˜ buffg ê°ì²´
+	private Barrier 			en; 			// ì¥ì• ë¬¼ì˜ ì´ë™ì†ë„ ê°ì²´
+	private File 				jumpEfx, bgm;	// ì í”„í• ë•Œíš¨ê³¼ìŒ, ê²Œì„ë°°ê²½ìŒ ì„ ìœ„í•œ ê°ì²´
+	private Clip				bgmClip;		// ì˜¤ë””ì˜¤ íŒŒì¼ ê°ì²´
 
-	public void initKeyboardListener()	// Å°º¸µå ÀÔ·ÂÀÌ °¡´ÉÇÏµµ·Ï Æ÷Ä¿½º¸¦ ¸ÂÃçÁÖ´Â ¸Ş¼ÒµåÀÌ´Ù.
+	public void initKeyboardListener()	// í‚¤ë³´ë“œ ì…ë ¥ì´ ê°€ëŠ¥í•˜ë„ë¡ í¬ì»¤ìŠ¤ë¥¼ ë§ì¶°ì£¼ëŠ” ë©”ì†Œë“œì´ë‹¤.
 	{
-		this.addKeyListener(this);	// ÇöÀç °´Ã¼¿¡¼­ »ç¿ë°¡´ÉÇÏµµ·Ï
-		this.setFocusable(true);	// Å°º¸µå ÀÔ·ÂÀÌ °¡´ÉÇÏµµ·Ï ÇØÁÜ
-		this.requestFocusInWindow();// Æ÷Ä¿½º¸¦ ÀÓÀÇ·Î ¹Şµµ·Ï ÇÑ´Ù
+		this.addKeyListener(this);	// í˜„ì¬ ê°ì²´ì—ì„œ ì‚¬ìš©ê°€ëŠ¥í•˜ë„ë¡
+		this.setFocusable(true);	// í‚¤ë³´ë“œ ì…ë ¥ì´ ê°€ëŠ¥í•˜ë„ë¡ í•´ì¤Œ
+		this.requestFocusInWindow();// í¬ì»¤ìŠ¤ë¥¼ ì„ì˜ë¡œ ë°›ë„ë¡ í•œë‹¤
 	}
 
-	public RunningGamePanel(JFrame frame)	// RunningGamePanel Å¬·¡½º »ı¼ºÀÚÀÌ´Ù. ÀÎ½ºÅÏ½º º¯¼ö ÃÊ±âÈ­¿Í ½º·¹µå ½ÇÇàÀ» ÇÑ´Ù.
+	public RunningGamePanel(JFrame frame)	// RunningGamePanel í´ë˜ìŠ¤ ìƒì„±ìì´ë‹¤. ì¸ìŠ¤í„´ìŠ¤ ë³€ìˆ˜ ì´ˆê¸°í™”ì™€ ìŠ¤ë ˆë“œ ì‹¤í–‰ì„ í•œë‹¤.
 	{		
-		init();		// ÃÊ±âÈ­ ¸Ş¼Òµå È£Ãâ
-		start();	// °ÔÀÓÀ» ´Ù½Ã½ÃÀÛÇÏ´Â ¸Ş¼Òµå È£Ãâ
+		init();		// ì´ˆê¸°í™” ë©”ì†Œë“œ í˜¸ì¶œ
+		start();	// ê²Œì„ì„ ë‹¤ì‹œì‹œì‘í•˜ëŠ” ë©”ì†Œë“œ í˜¸ì¶œ
 
+		this.frame = frame; 	
+		this.setPreferredSize(new Dimension(f_width, f_height));
+		// ë©”ì¸ í”„ë ˆì„ìœ¼ë¡œ ëŒì•„ê°ˆ ìˆ˜ ìˆê²Œ í•˜ê¸° ìœ„í•´ì„œ
 	} // RunningGamePanel
 
-	public void stop() // °ÔÀÓ ½º·¹µå¸¦ ÁßÁöÇÑ´Ù.
+	public void stop() // ê²Œì„ ìŠ¤ë ˆë“œë¥¼ ì¤‘ì§€í•œë‹¤.
 	{
-		th.stop();	// th°´Ã¼ÀÇ ½º·¹µå¸¦ Á¾·á
+		th.stop();	// thê°ì²´ì˜ ìŠ¤ë ˆë“œë¥¼ ì¢…ë£Œ
 	}
 
-	public void init() // º¯¼öÃÊ±âÈ­¸¦ ÇÑ´Ù.
+	public void init() // ë³€ìˆ˜ì´ˆê¸°í™”ë¥¼ í•œë‹¤.
 	{		
 		System.out.println("initiating commencing");	
-		cnt 		= 0;		// Àå¾Ö¹° ³ª¿À°ÔÇÏ´Â ¼³Á¤ º¯¼ö
-		back_x 		= 0;		// ¹è°æÀÇ xÁÂÇ¥
-		player_x 	= 100;		// Ä³¸¯ÅÍÀÇ xÁÂÇ¥
-		player_y 	= 710;		// Ä³¸¯ÅÍÀÇ yÁÂÇ¥ 
-		f_width 	= 800;		// À©µµ¿ìÃ¢ÀÇ ³Êºñ
-		f_height 	= 800;		// À©µµÀÇ Ã¢ÀÇ ³ôÀÌ
+		cnt 		= 0;		// ì¥ì• ë¬¼ ë‚˜ì˜¤ê²Œí•˜ëŠ” ì„¤ì • ë³€ìˆ˜
+		back_x 		= 0;		// ë°°ê²½ì˜ xì¢Œí‘œ
+		player_x 	= 100;		// ìºë¦­í„°ì˜ xì¢Œí‘œ
+		player_y 	= 710;		// ìºë¦­í„°ì˜ yì¢Œí‘œ 
+		f_width 	= 800;		// ìœˆë„ìš°ì°½ì˜ ë„ˆë¹„
+		f_height 	= 800;		// ìœˆë„ì˜ ì°½ì˜ ë†’ì´
 
-		KeyUp 		= false;	// ½ºÆäÀÌ½º ¹Ù¸¦ ´©¸£°í ¶ç¾úÀ»¶§ ¹ß»ıÇÏ´Â º¯¼ö 
-		crashed 	= false;	// Ã³À½¿£ Ãæµ¿¿©ºÎ¸¦ false·Î µĞ´Ù
-		jt 			= new JumpThread(this);	// jt°´Ã¼¿¡ Á¡ÇÁ¸¦ ½ÃÅ°±âÀ§ÇØ Á¡ÇÁ½º·¹µå¸¦ »ı¼ºÇÑ´Ù
+		KeyUp 		= false;	// ìŠ¤í˜ì´ìŠ¤ ë°”ë¥¼ ëˆ„ë¥´ê³  ë„ì—ˆì„ë•Œ ë°œìƒí•˜ëŠ” ë³€ìˆ˜ 
+		crashed 	= false;	// ì²˜ìŒì—” ì¶©ë™ì—¬ë¶€ë¥¼ falseë¡œ ë‘”ë‹¤
+		jt 			= new JumpThread(this);	// jtê°ì²´ì— ì í”„ë¥¼ ì‹œí‚¤ê¸°ìœ„í•´ ì í”„ìŠ¤ë ˆë“œë¥¼ ìƒì„±í•œë‹¤
 
-		Barrier_List = new ArrayList<Barrier>();	// Àå¾Ö¹°ÀÌ µé¾î°¥ ¹è¿­ »ı¼º
+		Barrier_List = new ArrayList<Barrier>();	// ì¥ì• ë¬¼ì´ ë“¤ì–´ê°ˆ ë°°ì—´ ìƒì„±
 
 		Barrier_img = new ImageIcon("src/images/barrier_real.png").getImage();
-		// Àå¾Ö¹° ÀÌ¹ÌÁö¸¦ »ı¼ºÇÑ´Ù.
+		// ì¥ì• ë¬¼ ì´ë¯¸ì§€ë¥¼ ìƒì„±í•œë‹¤.
 		
 		Player_img 	= new ImageIcon("src/images/player_alive.png").getImage();
-		// ÇÃ·¹ÀÌ¾î(Ä³¸¯ÅÍ) ÀÌ¹ÌÁö¸¦ »ı¼ºÇÑ´Ù
+		// í”Œë ˆì´ì–´(ìºë¦­í„°) ì´ë¯¸ì§€ë¥¼ ìƒì„±í•œë‹¤
 
 		BackGround_img = new ImageIcon("src/images/background_.png").getImage();
-		// ÀüÃ¼ ¹è°æÈ­¸é ÀÌ¹ÌÁö¸¦ »ı¼ºÇÑ´Ù.
+		// ì „ì²´ ë°°ê²½í™”ë©´ ì´ë¯¸ì§€ë¥¼ ìƒì„±í•œë‹¤.
 
-		game_Score 	= 0;//°ÔÀÓ ½ºÄÚ¾î ÃÊ±âÈ­
-		//		player_Speed = 10; //À¯Àú Ä³¸¯ÅÍ ¿òÁ÷ÀÌ´Â ¼Óµµ ¼³Á¤
-		player_JumpCount = 0; // ÇÃ·¹ÀÌ¾î Á¡ÇÁ È½¼ö ÃÊ±âÈ­
+		game_Score 	= 0;//ê²Œì„ ìŠ¤ì½”ì–´ ì´ˆê¸°í™”
+		//		player_Speed = 10; //ìœ ì € ìºë¦­í„° ì›€ì§ì´ëŠ” ì†ë„ ì„¤ì •
+		player_JumpCount = 0; // í”Œë ˆì´ì–´ ì í”„ íšŸìˆ˜ ì´ˆê¸°í™”
 
-		barrier_speed = 7;	//Àå¾Ö¹°ÀÌ ³¯¶ó¿À´Â ¼Óµµ ¼³Á¤	
+		barrier_speed = 7;	//ì¥ì• ë¬¼ì´ ë‚ ë¼ì˜¤ëŠ” ì†ë„ ì„¤ì •	
 		
-		jumpEfx = new File("src/sounds/jump_sound.wav");	// Á¡ÇÁÇÒ¶§ ³ª¿À´Â ÆÄÀÏ »ğÀÔ
-		bgm = new File("src/sounds/RunBgm.wav");			// ¹è°æÀ½¾Ç »ğÀÔ
+		jumpEfx = new File("src/sounds/jump_sound.wav");	// ì í”„í• ë•Œ ë‚˜ì˜¤ëŠ” íŒŒì¼ ì‚½ì…
+		bgm = new File("src/sounds/RunBgm.wav");			// ë°°ê²½ìŒì•… ì‚½ì…
 		try {
-			bgmClip = AudioSystem.getClip();	// ¿Àµğ¿À ÆÄÀÏÀÌ³ª ¿Àµğ¿À ½ºÆ®¸²ÀÇ Àç»ı¿¡ »ç¿ëÇÒ ¼ö ÀÖ´Â Å¬¸³À» ÃëµæÇÕ´Ï´Ù.
+			bgmClip = AudioSystem.getClip();	// ì˜¤ë””ì˜¤ íŒŒì¼ì´ë‚˜ ì˜¤ë””ì˜¤ ìŠ¤íŠ¸ë¦¼ì˜ ì¬ìƒì— ì‚¬ìš©í•  ìˆ˜ ìˆëŠ” í´ë¦½ì„ ì·¨ë“í•©ë‹ˆë‹¤.
 		} catch (LineUnavailableException e) {
-			e.printStackTrace();	// ¿¡·¯ ¸Ş¼¼ÁöÀÇ ¹ß»ı ±Ù¿øÁö¸¦ Ã£¾Æ¼­ Â÷·Ê´ë·Î Ãâ·ÂÇÑ´Ù.
+			e.printStackTrace();	// ì—ëŸ¬ ë©”ì„¸ì§€ì˜ ë°œìƒ ê·¼ì›ì§€ë¥¼ ì°¾ì•„ì„œ ì°¨ë¡€ëŒ€ë¡œ ì¶œë ¥í•œë‹¤.
 		}
 		playSound(bgm, bgmClip);
 	}
 
-	public void start(){	// °ÔÀÓ ½º·¹µå¸¦ ½ÇÇàÇÑ´Ù.
+	public void start(){	// ê²Œì„ ìŠ¤ë ˆë“œë¥¼ ì‹¤í–‰í•œë‹¤.
 		th = new Thread(this);
-		th.start();	// run¸Ş¼Òµå(°ÔÀÓÀÇ Èå¸§)¸¦ È£Ãâ
+		th.start();	// runë©”ì†Œë“œ(ê²Œì„ì˜ íë¦„)ë¥¼ í˜¸ì¶œ
 	} // start
 
-	public void run(){ 	// °ÔÀÓ ½º·¹µå°¡ ÀÛ¾÷ÇÒ °ÍµéÀ» ±¸ÇöÇÑ ¸Ş¼ÒµåÀÌ´Ù.
+	public void run(){ 	// ê²Œì„ ìŠ¤ë ˆë“œê°€ ì‘ì—…í•  ê²ƒë“¤ì„ êµ¬í˜„í•œ ë©”ì†Œë“œì´ë‹¤.
 		try{ 
-			while(!crashed){	// Ãæµ¹ÀÌ ¾ÈµÈ»óÅÂÀÌ¸é
+			while(!crashed){	// ì¶©ëŒì´ ì•ˆëœìƒíƒœì´ë©´
 				KeyProcess(); 		
 				BarrierProcess();
 
-				repaint(); 	//  È­¸éÀ» ´Ù½Ã ±×·ÁÁÜ
+				repaint(); 	//  í™”ë©´ì„ ë‹¤ì‹œ ê·¸ë ¤ì¤Œ
 
-				Thread.sleep(15);	// 0.015ÃÊ ¸¸Å­ ½º·¹µå¸¦ ¸ØÃç¼­ Àû´çÇÑ ½ºÇÇµå¸¦ ³»°ÔÇÑ´Ù 
-				cnt++;				// Æ¯Á¤°ªÀÌ ‰çÀ»¶§ Àå¾Ö¹°ÀÌ µîÀåÇÏ°ÔÇÏ´Â cntº¯¼ö¸¦ Áõ°¡½ÃÅ²´Ù
+				Thread.sleep(15);	// 0.015ì´ˆ ë§Œí¼ ìŠ¤ë ˆë“œë¥¼ ë©ˆì¶°ì„œ ì ë‹¹í•œ ìŠ¤í”¼ë“œë¥¼ ë‚´ê²Œí•œë‹¤ 
+				cnt++;				// íŠ¹ì •ê°’ì´ ë¬ì„ë•Œ ì¥ì• ë¬¼ì´ ë“±ì¥í•˜ê²Œí•˜ëŠ” cntë³€ìˆ˜ë¥¼ ì¦ê°€ì‹œí‚¨ë‹¤
 			}
-			stopSound(bgmClip);	// Ãæµ¹ÀÌ µÇ¾ú´Ù¸é À½¾ÇÀ» ¸ØÃçÁØ´Ù
-			gameContinue();		// °ÔÀÓ Àç½ÃÀÛ ¿©ºÎ
+			stopSound(bgmClip);	// ì¶©ëŒì´ ë˜ì—ˆë‹¤ë©´ ìŒì•…ì„ ë©ˆì¶°ì¤€ë‹¤
+			gameContinue();		// ê²Œì„ ì¬ì‹œì‘ ì—¬ë¶€
 		} catch (Exception e){}
 	} // run
 
-	public void gameContinue()	// °ÔÀÓ¿À¹ö°¡ µÇ¸é °ÔÀÓÀ» ´Ù½ÃÇÒ °ÍÀÎÁö, ¸Ş´º·Î µÇµ¹¾Æ°¥ °ÍÀÎÁö¸¦ ¹¯´Â Ã¢À» ¶ç¿ì´Â ¸Ş¼ÒµåÀÌ´Ù. 
+	public void gameContinue()	// ê²Œì„ì˜¤ë²„ê°€ ë˜ë©´ ê²Œì„ì„ ë‹¤ì‹œí•  ê²ƒì¸ì§€, ë©”ë‰´ë¡œ ë˜ëŒì•„ê°ˆ ê²ƒì¸ì§€ë¥¼ ë¬»ëŠ” ì°½ì„ ë„ìš°ëŠ” ë©”ì†Œë“œì´ë‹¤. 
 	{
 		int result;
 
-		result = JOptionPane.showConfirmDialog(this, 	// ÇöÀç ÇÁ·¹ÀÓ¿¡¼­ Ãâ·Â
-				"YOUR GRADE IS " + game_Score + "! CONTINUE?",	// Ãâ·ÂÇÒ ¹®ÀÚ
-				"GAME OVER", 									// Å¸ÀÌÆ²		
-				JOptionPane.YES_NO_OPTION,		// YES, NO µÎ°³ÀÇ ¼±ÅÃ»çÇ×
-				JOptionPane.PLAIN_MESSAGE);		// ¾Ë¸²Ã¢ÀÇ ¸Ş½ÃÁö ¾ÆÀÌÄÜ ¾øÀ½
+		result = JOptionPane.showConfirmDialog(this, 	// í˜„ì¬ í”„ë ˆì„ì—ì„œ ì¶œë ¥
+				"YOUR GRADE IS " + game_Score + "! CONTINUE?",	// ì¶œë ¥í•  ë¬¸ì
+				"GAME OVER", 									// íƒ€ì´í‹€		
+				JOptionPane.YES_NO_OPTION,		// YES, NO ë‘ê°œì˜ ì„ íƒì‚¬í•­
+				JOptionPane.PLAIN_MESSAGE);		// ì•Œë¦¼ì°½ì˜ ë©”ì‹œì§€ ì•„ì´ì½˜ ì—†ìŒ
 		
-		if(result == JOptionPane.YES_OPTION) {	// È®ÀÎÃ¢ÀÇ YES¹öÆ°À» ´©¸£¸é
+		if(result == JOptionPane.YES_OPTION) {	// í™•ì¸ì°½ì˜ YESë²„íŠ¼ì„ ëˆ„ë¥´ë©´
 			System.out.println("YES");
-			init();		// °ÔÀÓ ÃÊ±âÈ­ ¸Ş¼Òµå È£Ãâ
-			start();	// °ÔÀÓÀ» ´Ù½Ã ½ÃÀÛÇÏ´Â ¸Ş¼Òµå È£Ãâ
+			init();		// ê²Œì„ ì´ˆê¸°í™” ë©”ì†Œë“œ í˜¸ì¶œ
+			start();	// ê²Œì„ì„ ë‹¤ì‹œ ì‹œì‘í•˜ëŠ” ë©”ì†Œë“œ í˜¸ì¶œ
 		}
-		else if(result == JOptionPane.NO_OPTION) {	// È®ÀÎÃ¢ÀÇ NO¹öÆ°À» ´©¸£¸é
+		else if(result == JOptionPane.NO_OPTION) {	// í™•ì¸ì°½ì˜ NOë²„íŠ¼ì„ ëˆ„ë¥´ë©´
 			System.out.println("NO");
 
 			Rectangle r = frame.getBounds();	
-			frame.setSize(r.width, r.height - 1);	// frameÀÇ Å©±âÁöÁ¤
-			frame.setSize(r.width, r.height + 1);	// frameÀÇ Å©±âÁöÁ¤
+			frame.setSize(r.width, r.height - 1);	// frameì˜ í¬ê¸°ì§€ì •
+			frame.setSize(r.width, r.height + 1);	// frameì˜ í¬ê¸°ì§€ì •
 
-			frame.getContentPane().removeAll();		// °ÔÀÓÀ» Àç½ÃÀÛ ¶Ç´Â Á¾·áÇÒ ¼ö ÀÖµµ·Ï ÄÁÅ×ÀÌ³Ê¿¡ ÀÖ´Â ¸ğµç ÄÄÆ÷³ÍÆ®¸¦ ¾ø¾ÖÁØ´Ù
+			frame.getContentPane().removeAll();		// ê²Œì„ì„ ì¬ì‹œì‘ ë˜ëŠ” ì¢…ë£Œí•  ìˆ˜ ìˆë„ë¡ ì»¨í…Œì´ë„ˆì— ìˆëŠ” ëª¨ë“  ì»´í¬ë„ŒíŠ¸ë¥¼ ì—†ì• ì¤€ë‹¤
 			frame.getContentPane().add(new MainPanel(frame));	//
 		} else {
 			System.out.println("CANCEL");
 		}
 	} // gmaeContinue()
 
-	public void BarrierProcess(){	// °ÔÀÓ¿¡ µîÀåÇÏ´Â Àå¾Ö¹°µéÀÇ »ı¼º/¼Ò¸ê, À§Ä¡ °»½Å µîÀ» ´ã´çÇÏ´Â ¸Ş¼ÒµåÀÌ´Ù.
+	public void BarrierProcess(){	// ê²Œì„ì— ë“±ì¥í•˜ëŠ” ì¥ì• ë¬¼ë“¤ì˜ ìƒì„±/ì†Œë©¸, ìœ„ì¹˜ ê°±ì‹  ë“±ì„ ë‹´ë‹¹í•˜ëŠ” ë©”ì†Œë“œì´ë‹¤.
 
 		for (int i = 0 ; i < Barrier_List.size() ; ++i )
 		{ 
-			en = (Barrier)(Barrier_List.get(i)); // ¹è¿­ÀÇ i¹øÂ° ÀÎµ¦½ºÀÇ °´Ã¼¸¦ en °´Ã¼¿¡ ´ã¾ÆÁØ´Ù
-			en.move(); 		// ÇØ´ç Àå¾Ö¹°À» ÁÂÃøÀ¸·Î ÀÌµ¿½ÃÅ²´Ù ( Bariier Å¬·¡½º¿¡¼­  xÁÂÇ¥¸¦ °¨¼Ò½ÃÅ²´Ù)
-			if(en.x < -200)	// Àå¾Ö¹°ÀÌ Æ¯Á¤ ¹üÀ§¸¦ ¹ş¾î³ª¸é
+			en = (Barrier)(Barrier_List.get(i)); // ë°°ì—´ì˜ ië²ˆì§¸ ì¸ë±ìŠ¤ì˜ ê°ì²´ë¥¼ en ê°ì²´ì— ë‹´ì•„ì¤€ë‹¤
+			en.move(); 		// í•´ë‹¹ ì¥ì• ë¬¼ì„ ì¢Œì¸¡ìœ¼ë¡œ ì´ë™ì‹œí‚¨ë‹¤ ( Bariier í´ë˜ìŠ¤ì—ì„œ  xì¢Œí‘œë¥¼ ê°ì†Œì‹œí‚¨ë‹¤)
+			if(en.x < -200)	// ì¥ì• ë¬¼ì´ íŠ¹ì • ë²”ìœ„ë¥¼ ë²—ì–´ë‚˜ë©´
 			{ 
-				Barrier_List.remove(i); 	// Àå¾Ö¹°À» Á¦°ÅÇÑ´Ù
+				Barrier_List.remove(i); 	// ì¥ì• ë¬¼ì„ ì œê±°í•œë‹¤
 			}
 
 			if(Crash(player_x, player_y, en.x, en.y, Player_img, Barrier_img))
-			{	// ÇÃ·¹ÀÌ¾îÀÇ x,y°ª, Àå¾Ö¹°ÀÇ x,y°ª, ÇÃ·¹ÀÌ¾î ÀÌ¹ÌÁö, Àå¾Ö¹° ÀÌ¹ÌÁö¸¦ ¹Ş¾Æ¼­  
-				// Ãæµ¹ »óÅÂÀÌ¸é
+			{	// í”Œë ˆì´ì–´ì˜ x,yê°’, ì¥ì• ë¬¼ì˜ x,yê°’, í”Œë ˆì´ì–´ ì´ë¯¸ì§€, ì¥ì• ë¬¼ ì´ë¯¸ì§€ë¥¼ ë°›ì•„ì„œ  
+				// ì¶©ëŒ ìƒíƒœì´ë©´
 				Player_img = new ImageIcon("src/images/player_dead.png").getImage(); // change player's image when died
-				crashed = true;	// Ãæµ¹¿©ºÎ
+				crashed = true;	// ì¶©ëŒì—¬ë¶€
 			}
 		} // for
 
-		if ( cnt % 100 == 0 )	// run¿¡¼­ ¹ß»ıÇÏ´Â cntÁõ°¡
+		if ( cnt % 100 == 0 )	// runì—ì„œ ë°œìƒí•˜ëŠ” cntì¦ê°€
 		{ 
 			if(cnt % 200 == 0)
-				barrier_speed += 0.5f;	// ³ªÁß¿¡ ³ª¿À´Â Àå¾Ö¹°ÀÇ ½ºÇÇµå¸¦ ¾à°£ Áõ°¡½ÃÅ²´Ù
+				barrier_speed += 0.5f;	// ë‚˜ì¤‘ì— ë‚˜ì˜¤ëŠ” ì¥ì• ë¬¼ì˜ ìŠ¤í”¼ë“œë¥¼ ì•½ê°„ ì¦ê°€ì‹œí‚¨ë‹¤
 			int nRandom = (int)(Math.random()*12); // 0 ~ 11
-			// 1´Ü Àå¾Ö¹° : 2´Ü Àå¾Ö¹° : °øÁßÀå¾Ö¹°  (³ª¿À´Â ºñÀ²) = 5/12 : 4/12 : 3/12
+			// 1ë‹¨ ì¥ì• ë¬¼ : 2ë‹¨ ì¥ì• ë¬¼ : ê³µì¤‘ì¥ì• ë¬¼  (ë‚˜ì˜¤ëŠ” ë¹„ìœ¨) = 5/12 : 4/12 : 3/12
 			if(0<=nRandom && nRandom <= 2) {
-				en = new Barrier(f_width + 190, 650, (int)barrier_speed); // frameÀÇ width + 190, 700Àº Ã¹¹øÂ° Àå¾Ö¹°ÀÌ ³ª¿À´Â x,y ÁÂÇ¥
+				en = new Barrier(f_width + 190, 650, (int)barrier_speed); // frameì˜ width + 190, 700ì€ ì²«ë²ˆì§¸ ì¥ì• ë¬¼ì´ ë‚˜ì˜¤ëŠ” x,y ì¢Œí‘œ
 			}
 			else if(nRandom == 3 || nRandom == 4) {
-				en = new Barrier(f_width + 115, 650, (int)barrier_speed); // frameÀÇ width + 100, 700Àº Ã¹¹øÂ° Àå¾Ö¹°ÀÌ ³ª¿À´Â x,y ÁÂÇ¥
+				en = new Barrier(f_width + 115, 650, (int)barrier_speed); // frameì˜ width + 100, 700ì€ ì²«ë²ˆì§¸ ì¥ì• ë¬¼ì´ ë‚˜ì˜¤ëŠ” x,y ì¢Œí‘œ
 			}
 			else if(nRandom == 5 || nRandom == 6) {
-				en = new Barrier(f_width + 235, 550, (int)barrier_speed); // ,, 2¹øÂ° Àå¾Ö¹°ÀÌ ³ª¿À´Â x,y ÁÂÇ¥
+				en = new Barrier(f_width + 235, 550, (int)barrier_speed); // ,, 2ë²ˆì§¸ ì¥ì• ë¬¼ì´ ë‚˜ì˜¤ëŠ” x,y ì¢Œí‘œ
 			} 
 			else if(nRandom == 7 || nRandom == 8) {
-				en = new Barrier(f_width + 190, 550, (int)barrier_speed); // ,, 2¹øÂ° Àå¾Ö¹°ÀÌ ³ª¿À´Â x,y ÁÂÇ¥
+				en = new Barrier(f_width + 190, 550, (int)barrier_speed); // ,, 2ë²ˆì§¸ ì¥ì• ë¬¼ì´ ë‚˜ì˜¤ëŠ” x,y ì¢Œí‘œ
 			} else {
-				en = new Barrier(f_width + -5, 0, (int)barrier_speed); // ,, µÎ¹øÂ° Àå¾Ö¹°ÀÌ ³ª¿À´Â x,y ÁÂÇ¥	
+				en = new Barrier(f_width + -5, 0, (int)barrier_speed); // ,, ë‘ë²ˆì§¸ ì¥ì• ë¬¼ì´ ë‚˜ì˜¤ëŠ” x,y ì¢Œí‘œ	
 			}
-			Barrier_List.add(en);	// Àå¾Ö¹° ¹è¿­¿¡ enÀ» add ½ÃÄÑ¼­ »ı¼ºµÈ Àå¾Ö¹°ÀÌ ¹è¿­·Î 
+			Barrier_List.add(en);	// ì¥ì• ë¬¼ ë°°ì—´ì— enì„ add ì‹œì¼œì„œ ìƒì„±ëœ ì¥ì• ë¬¼ì´ ë°°ì—´ë¡œ 
 		} // if
 	} // BarrierProcess
 
 	public boolean Crash(float x1, float y1, float x2, float y2, Image img1, Image img2){
-	// ÇÃ·¹ÀÌ¾î ¿ÀºêÁ§Æ®¿Í Àå¾Ö¹°ÀÌ °°Àº ¿µ¿ª¿¡ Á¸ÀçÇÏ´ÂÁö¸¦ ÆÇº°ÇÏ°í, ÀÌ¿¡ µû¶ó	 Ãæµ¹¿©ºÎ¸¦ ¹İÈ¯ÇÏ´Â ¸Ş¼ÒµåÀÌ´Ù.
+	// í”Œë ˆì´ì–´ ì˜¤ë¸Œì íŠ¸ì™€ ì¥ì• ë¬¼ì´ ê°™ì€ ì˜ì—­ì— ì¡´ì¬í•˜ëŠ”ì§€ë¥¼ íŒë³„í•˜ê³ , ì´ì— ë”°ë¼	 ì¶©ëŒì—¬ë¶€ë¥¼ ë°˜í™˜í•˜ëŠ” ë©”ì†Œë“œì´ë‹¤.
 
-		//ÀÌÁ¦ ÀÌ¹ÌÁö º¯¼ö¸¦ ¹Ù·Î ¹Ş¾Æ ÇØ´ç ÀÌ¹ÌÁöÀÇ ³ĞÀÌ, ³ôÀÌ°ªÀ» ¹Ù·Î °è»êÇÏ´Â ÄÚµå.
-		// x1 : Ä³¸¯ÅÍÀÇ x°ª,	y1: Ä³¸¯ÅÍÀÇ y°ª
-		// x2 : Àå¾Ö¹°ÀÇ x°ª,	y2: Àå¾Ö¹°ÀÇ y°ª
-		// img1 : ÇÃ·¹ÀÌ¾î ÀÌ¹ÌÁö, 	img2 : Àå¾Ö¹° ÀÌ¹ÌÁö
-		boolean check = false;	// Àå¾Ö¹°ÀÌ Ãâµ¿ Çß´ÂÁö ¾ÈÇß´ÂÁö¸¦ Ã¼Å©ÇÑ´Ù(ÃÊ±â¿¡´Â Ã¼Å© ¾ÈµÈ »óÅÂ)
+		//ì´ì œ ì´ë¯¸ì§€ ë³€ìˆ˜ë¥¼ ë°”ë¡œ ë°›ì•„ í•´ë‹¹ ì´ë¯¸ì§€ì˜ ë„“ì´, ë†’ì´ê°’ì„ ë°”ë¡œ ê³„ì‚°í•˜ëŠ” ì½”ë“œ.
+		// x1 : ìºë¦­í„°ì˜ xê°’,	y1: ìºë¦­í„°ì˜ yê°’
+		// x2 : ì¥ì• ë¬¼ì˜ xê°’,	y2: ì¥ì• ë¬¼ì˜ yê°’
+		// img1 : í”Œë ˆì´ì–´ ì´ë¯¸ì§€, 	img2 : ì¥ì• ë¬¼ ì´ë¯¸ì§€
+		boolean check = false;	// ì¥ì• ë¬¼ì´ ì¶œë™ í–ˆëŠ”ì§€ ì•ˆí–ˆëŠ”ì§€ë¥¼ ì²´í¬í•œë‹¤(ì´ˆê¸°ì—ëŠ” ì²´í¬ ì•ˆëœ ìƒíƒœ)
 
 		if ( Math.abs( ( x1 + img1.getWidth(null) / 2 )  	
 				- ( x2 + img2.getWidth(null) / 2 ))  
@@ -218,57 +221,57 @@ class RunningGamePanel extends JPanel implements Runnable, KeyListener{
 						- ( y2 + img2.getHeight(null) / 2 ))  
 				< ( img2.getHeight(null)/2 + img1.getHeight(null)/2 ) ) // if
 		{
-		// Àı´ë°ªÀ» ±¸ÇØÁÖ´Â absÇÔ¼ö¸¦ ÀÌ¿ëÇÏ¿© ÀÌ¹ÌÁö ³ĞÀÌ, ³ôÀÌ°ªÀ» ¹Ù·Î ¹Ş¾Æ °è»êÇÕ´Ï´Ù.
+		// ì ˆëŒ€ê°’ì„ êµ¬í•´ì£¼ëŠ” absí•¨ìˆ˜ë¥¼ ì´ìš©í•˜ì—¬ ì´ë¯¸ì§€ ë„“ì´, ë†’ì´ê°’ì„ ë°”ë¡œ ë°›ì•„ ê³„ì‚°í•©ë‹ˆë‹¤.
 
 
-			check = true;	// Ä³¸¯ÅÍ°¡ Àå¾Ö¹°°ú Ãæµ¹ÇßÀ¸¸é(if¹® ¾È¿¡ °ªÀÌ true¸é) check¿¡ true¸¦ Àü´ŞÇÕ´Ï´Ù.
-		}else{ check = false;}	// Ãæµ¹ ¾ÈÇßÀ¸¸é °è¼Ó Ã¼Å©°ªÀº false
+			check = true;	// ìºë¦­í„°ê°€ ì¥ì• ë¬¼ê³¼ ì¶©ëŒí–ˆìœ¼ë©´(ifë¬¸ ì•ˆì— ê°’ì´ trueë©´) checkì— trueë¥¼ ì „ë‹¬í•©ë‹ˆë‹¤.
+		}else{ check = false;}	// ì¶©ëŒ ì•ˆí–ˆìœ¼ë©´ ê³„ì† ì²´í¬ê°’ì€ false
 
-		return check; // Àå¾Ö¹° Ãæµ¹ Ã¼Å©°ªÀ» °¡Áö°í ÀÖ´Â checkÀÇ °ªÀ» ¸Ş¼Òµå¿¡ ¸®ÅÏ ½ÃÅµ´Ï´Ù.
+		return check; // ì¥ì• ë¬¼ ì¶©ëŒ ì²´í¬ê°’ì„ ê°€ì§€ê³  ìˆëŠ” checkì˜ ê°’ì„ ë©”ì†Œë“œì— ë¦¬í„´ ì‹œí‚µë‹ˆë‹¤.
 	} // Crash
 
 
 	public void paint(Graphics g){	
-	// ÀÌ ¸Ş¼Òµå´Â repaint¸Ş¼Òµå°¡ ºÒ¸± ¶§ ÀÚµ¿À¸·Î ºÒ¸®´Â ÇÔ¼ö·Î, °¢ ¿ÀºêÁ§Æ®µéÀÇ °»½ÅµÈ »õ·Î¿î À§Ä¡¿¡ ¸Â°Ô ±×¸²À» ±×¸®µµ·Ï ÀçÁ¤ÀÇµÇ¾ú´Ù.
-		Draw_Background(g); // ¹è°æ ÀÌ¹ÌÁö ±×¸®±â ¸Ş¼Òµå ½ÇÇà
-		Draw_Player(g); 	// ÇÃ·¹ÀÌ¾î ÀÌ¹ÌÁö¸¦ ±×¸®´Â ¸Ş¼Òµå ½ÇÇà
-		Draw_Barrier(g);	// Àå¾Ö¹° ÀÌ¹ÌÁö¸¦ ±×¸®´Â ¸Ş¼Òµå ½ÇÇà
-		Draw_StatusText(g);	//»óÅÂ Ç¥½Ã ÅØ½ºÆ®¸¦ ±×¸®´Â ¸Ş¼Òµå ½ÇÇà
+	// ì´ ë©”ì†Œë“œëŠ” repaintë©”ì†Œë“œê°€ ë¶ˆë¦´ ë•Œ ìë™ìœ¼ë¡œ ë¶ˆë¦¬ëŠ” í•¨ìˆ˜ë¡œ, ê° ì˜¤ë¸Œì íŠ¸ë“¤ì˜ ê°±ì‹ ëœ ìƒˆë¡œìš´ ìœ„ì¹˜ì— ë§ê²Œ ê·¸ë¦¼ì„ ê·¸ë¦¬ë„ë¡ ì¬ì •ì˜ë˜ì—ˆë‹¤.
+		Draw_Background(g); // ë°°ê²½ ì´ë¯¸ì§€ ê·¸ë¦¬ê¸° ë©”ì†Œë“œ ì‹¤í–‰
+		Draw_Player(g); 	// í”Œë ˆì´ì–´ ì´ë¯¸ì§€ë¥¼ ê·¸ë¦¬ëŠ” ë©”ì†Œë“œ ì‹¤í–‰
+		Draw_Barrier(g);	// ì¥ì• ë¬¼ ì´ë¯¸ì§€ë¥¼ ê·¸ë¦¬ëŠ” ë©”ì†Œë“œ ì‹¤í–‰
+		Draw_StatusText(g);	//ìƒíƒœ í‘œì‹œ í…ìŠ¤íŠ¸ë¥¼ ê·¸ë¦¬ëŠ” ë©”ì†Œë“œ ì‹¤í–‰
 	}
 
 	public void update(Graphics g){
-	// ÀÌ ¸Ş¼Òµå´Â repaint¸Ş¼Òµå°¡ ºÒ¸± ¶§ ÀÚµ¿À¸·Î ºÒ¸®´Â ÇÔ¼ö·Î, ´õºí¹öÆÛ¸µÀ» À§ÇØ ´Ù½Ã ÀçÁ¤ÀÇ µÇ¾ú´Ù.
+	// ì´ ë©”ì†Œë“œëŠ” repaintë©”ì†Œë“œê°€ ë¶ˆë¦´ ë•Œ ìë™ìœ¼ë¡œ ë¶ˆë¦¬ëŠ” í•¨ìˆ˜ë¡œ, ë”ë¸”ë²„í¼ë§ì„ ìœ„í•´ ë‹¤ì‹œ ì¬ì •ì˜ ë˜ì—ˆë‹¤.
 		buffImage = createImage(f_width, f_height); 
 		buffg = buffImage.getGraphics();
 		paint(buffg);	
-		// buffg ¿¡ÀÖ´Â ÀÌ¹ÌÁö¸¦ ±×·ÁÁÖ¾î repaint½Ã¿¡µµ È­¸éÀÌ ±ôºıÀÌÁö ¾Ê°ÔÇØÁØ´Ù
+		// buffg ì—ìˆëŠ” ì´ë¯¸ì§€ë¥¼ ê·¸ë ¤ì£¼ì–´ repaintì‹œì—ë„ í™”ë©´ì´ ê¹œë¹¡ì´ì§€ ì•Šê²Œí•´ì¤€ë‹¤
 		g.drawImage(buffImage, 0, 0, this); 
 	}
 
 	public void Draw_Background(Graphics g){
-		//¹è°æ ÀÌ¹ÌÁö¸¦ ±×¸®´Â ºÎºĞ
+		//ë°°ê²½ ì´ë¯¸ì§€ë¥¼ ê·¸ë¦¬ëŠ” ë¶€ë¶„
 
 		if(back_x > -5600) {
-			// ±âº» °ªÀÌ 0ÀÎ back_x(¹è°æÀÌ¹ÌÁöÀÇ xÁÂÇ¥)°¡ -5600 º¸´Ù Å©¸é ½ÇÇà
+			// ê¸°ë³¸ ê°’ì´ 0ì¸ back_x(ë°°ê²½ì´ë¯¸ì§€ì˜ xì¢Œí‘œ)ê°€ -5600 ë³´ë‹¤ í¬ë©´ ì‹¤í–‰
 			g.drawImage(BackGround_img, back_x, 0, this);
 			// drawIamge(Image img, int x, int y,ImageObserver observer);
 			g.drawImage(BackGround_img, back_x + 5600, 0, this);
 		} else { 
-			back_x = 0;	// ¹è°æÀ» Ã³À½ xÁÂÇ¥·Î µ¹·Á³ö ¹è°æÀÌ °è¼Ó ³ª¿Àµµ·Ï ÇÑ´Ù
+			back_x = 0;	// ë°°ê²½ì„ ì²˜ìŒ xì¢Œí‘œë¡œ ëŒë ¤ë†” ë°°ê²½ì´ ê³„ì† ë‚˜ì˜¤ë„ë¡ í•œë‹¤
 		}
 
-		back_x -= 3;	//back_x¸¦ 0¿¡¼­ -3¸¸Å­ °è¼Ó ÁÙÀÌ¹Ç·Î ¹è°æÀÌ¹ÌÁöÀÇ xÁÂÇ¥´Â
-						//°è¼Ó ÁÂÃøÀ¸·Î ÀÌµ¿ÇÑ´Ù. ±×·¯¹Ç·Î ÀüÃ¼ ¹è°æÀº ÃµÃµÈ÷ ÁÂÃøÀ¸·Î ¿òÁ÷ÀÌ°Ô µÈ´Ù.
-		game_Score += 1;	// -3 ¸¸Å­ ¿òÁ÷ÀÏ¶§ ¸¶´Ù game_Score °ªÀº Áõ°¡½ÃÅ²´Ù
+		back_x -= 3;	//back_xë¥¼ 0ì—ì„œ -3ë§Œí¼ ê³„ì† ì¤„ì´ë¯€ë¡œ ë°°ê²½ì´ë¯¸ì§€ì˜ xì¢Œí‘œëŠ”
+						//ê³„ì† ì¢Œì¸¡ìœ¼ë¡œ ì´ë™í•œë‹¤. ê·¸ëŸ¬ë¯€ë¡œ ì „ì²´ ë°°ê²½ì€ ì²œì²œíˆ ì¢Œì¸¡ìœ¼ë¡œ ì›€ì§ì´ê²Œ ëœë‹¤.
+		game_Score += 1;	// -3 ë§Œí¼ ì›€ì§ì¼ë•Œ ë§ˆë‹¤ game_Score ê°’ì€ ì¦ê°€ì‹œí‚¨ë‹¤
 	} // Draw_Background
 
 	public void Draw_Player(Graphics g) { 	
-	// ÀÌ ¸Ş¼Òµå´Â paint¸Ş¼Òµå¿¡¼­ ºÒ¸°´Ù. ¸Å ÇÁ·¹ÀÓ¸¶´Ù °»½ÅµÈ À§Ä¡¿¡ ÇÃ·¹ÀÌ¾î ¿ÀºêÁ§Æ®¸¦ ±×¸°´Ù.
+	// ì´ ë©”ì†Œë“œëŠ” paintë©”ì†Œë“œì—ì„œ ë¶ˆë¦°ë‹¤. ë§¤ í”„ë ˆì„ë§ˆë‹¤ ê°±ì‹ ëœ ìœ„ì¹˜ì— í”Œë ˆì´ì–´ ì˜¤ë¸Œì íŠ¸ë¥¼ ê·¸ë¦°ë‹¤.
 		g.drawImage(Player_img, (int)player_x, (int)player_y, this);
 	}
 
 	public void Draw_Barrier(Graphics g) { 	
-	// ÀÌ ¸Ş¼Òµå´Â paint¸Ş¼Òµå¿¡¼­ ºÒ¸°´Ù. ¸Å ÇÁ·¹ÀÓ¸¶´Ù °»½ÅµÈ À§Ä¡¿¡ Àå¾Ö¹°µéÀ» ±×¸°´Ù.
+	// ì´ ë©”ì†Œë“œëŠ” paintë©”ì†Œë“œì—ì„œ ë¶ˆë¦°ë‹¤. ë§¤ í”„ë ˆì„ë§ˆë‹¤ ê°±ì‹ ëœ ìœ„ì¹˜ì— ì¥ì• ë¬¼ë“¤ì„ ê·¸ë¦°ë‹¤.
 		for (int i = 0 ; i < Barrier_List.size() ; ++i ){
 			en = (Barrier)(Barrier_List.get(i));
 			g.drawImage(Barrier_img, en.x, en.y, this);
@@ -276,99 +279,99 @@ class RunningGamePanel extends JPanel implements Runnable, KeyListener{
 	}
 
 	public void Draw_StatusText(Graphics g){ 
-	// ÀÌ ¸Ş¼Òµå´Â paint¸Ş¼Òµå¿¡¼­ ºÒ¸°´Ù. ¸Å ÇÁ·¹ÀÓ¸¶´Ù °»½ÅµÈ Á¡¼ö·¹ÀÌºíÀ» ±×¸°´Ù. ( °ÔÀÓ ½ºÄÚ¾î Ãâ·Â ÅØ½ºÆ® )
+	// ì´ ë©”ì†Œë“œëŠ” paintë©”ì†Œë“œì—ì„œ ë¶ˆë¦°ë‹¤. ë§¤ í”„ë ˆì„ë§ˆë‹¤ ê°±ì‹ ëœ ì ìˆ˜ë ˆì´ë¸”ì„ ê·¸ë¦°ë‹¤. ( ê²Œì„ ìŠ¤ì½”ì–´ ì¶œë ¥ í…ìŠ¤íŠ¸ )
 
 		g.setFont(new Font("Defualt", Font.BOLD, 20));
-		// ÆùÆ® ¼³Á¤À» ÇÕ´Ï´Ù.  ±âº»ÆùÆ®, ±½°Ô, »çÀÌÁî 20
+		// í°íŠ¸ ì„¤ì •ì„ í•©ë‹ˆë‹¤.  ê¸°ë³¸í°íŠ¸, êµµê²Œ, ì‚¬ì´ì¦ˆ 20
 		String strFormat = String.format("SCORE : %06d M", game_Score);
-		// °ÔÀÓ½ºÄÚ¾î¸¦ Ãâ·Â ÇØÁÖ´Â º¯¼ö
+		// ê²Œì„ìŠ¤ì½”ì–´ë¥¼ ì¶œë ¥ í•´ì£¼ëŠ” ë³€ìˆ˜
 		g.drawString(strFormat, 600, 70);
-		// ÁÂÇ¥ x : 600, y : 70¿¡ ½ºÄÚ¾î¸¦ Ç¥½ÃÇÕ´Ï´Ù.
+		// ì¢Œí‘œ x : 600, y : 70ì— ìŠ¤ì½”ì–´ë¥¼ í‘œì‹œí•©ë‹ˆë‹¤.
 	}
 
 	public void KeyProcess(){	
-	// ¸Å ÇÁ·¹ÀÓÀÌ °»½ÅµÉ¶§¸¶´Ù ºÒ¸®¸ç ÀÎÇ²À» ¹Ş´Â ¸Ş¼ÒµåÀÌ´Ù.
-	// ½ºÆäÀÌ½º¹Ù°¡ ´­·ÈÀ» °æ¿ì ÇÃ·¹ÀÌ¾î ¿ÀºêÁ§Æ®ÀÇ Á¡ÇÁ ¾Ö´Ï¸ŞÀÌ¼ÇÀ» ½ÇÇàÇÏ¸ç, 2¹ø ÀÌ»óÀÇ ÀÔ·ÂÀ» Á¦ÇÑÇÏ´Â ¿ªÇÒµµ ÇÑ´Ù.
+	// ë§¤ í”„ë ˆì„ì´ ê°±ì‹ ë ë•Œë§ˆë‹¤ ë¶ˆë¦¬ë©° ì¸í’‹ì„ ë°›ëŠ” ë©”ì†Œë“œì´ë‹¤.
+	// ìŠ¤í˜ì´ìŠ¤ë°”ê°€ ëˆŒë ¸ì„ ê²½ìš° í”Œë ˆì´ì–´ ì˜¤ë¸Œì íŠ¸ì˜ ì í”„ ì• ë‹ˆë©”ì´ì…˜ì„ ì‹¤í–‰í•˜ë©°, 2ë²ˆ ì´ìƒì˜ ì…ë ¥ì„ ì œí•œí•˜ëŠ” ì—­í• ë„ í•œë‹¤.
 		
 		// System.out.println(KeyUp + ", " + player_JumpCount);
 		if(KeyUp == true && player_JumpCount<=2) 
-		{	// ½ºÆäÀÌ½º°¡ ´­·¶´Ù ¶© »óÅÂÀÌ°í, Á¡ÇÁ°¡ 2´Ü Á¡ÇÁ ÀÌÇÏÀÌ¸é
-			if(jt.isRunning())	// Á¡ÇÁÇÏ°í ÀÖ´Â »óÅÂ¶ó¸é
+		{	// ìŠ¤í˜ì´ìŠ¤ê°€ ëˆŒë €ë‹¤ ë• ìƒíƒœì´ê³ , ì í”„ê°€ 2ë‹¨ ì í”„ ì´í•˜ì´ë©´
+			if(jt.isRunning())	// ì í”„í•˜ê³  ìˆëŠ” ìƒíƒœë¼ë©´
 			{
-				jt.stop();	// Á¡ÇÁ½º·¹µå¸¦ Á¾·á½ÃÅ²´Ù
+				jt.stop();	// ì í”„ìŠ¤ë ˆë“œë¥¼ ì¢…ë£Œì‹œí‚¨ë‹¤
 			}
-			jt = new JumpThread(this);	// »õ·Î¿î Á¡ÇÁ½º·¹µå »ı¼º
-			jt.start();	// Á¡ÇÁ ½º·¹µå¿¡ ÀÖ´Â start ¸Ş¼Òµå¸¦ È£Ãâ
-			playSound(jumpEfx);	// Á¡ÇÁÇÒ¶§ »ç¿îµåÈ¿°ú¸¦ ÁØ´Ù
+			jt = new JumpThread(this);	// ìƒˆë¡œìš´ ì í”„ìŠ¤ë ˆë“œ ìƒì„±
+			jt.start();	// ì í”„ ìŠ¤ë ˆë“œì— ìˆëŠ” start ë©”ì†Œë“œë¥¼ í˜¸ì¶œ
+			playSound(jumpEfx);	// ì í”„í• ë•Œ ì‚¬ìš´ë“œíš¨ê³¼ë¥¼ ì¤€ë‹¤
 		}
 
-		KeyUp = false;	// ½ºÆäÀÌ½º¹Ù »óÅÂ ÃÊ±âÈ­
+		KeyUp = false;	// ìŠ¤í˜ì´ìŠ¤ë°” ìƒíƒœ ì´ˆê¸°í™”
 	} // KeyProcess
 
 	public void setJumpCount(int n)
-	// ÇÃ·¹ÀÌ¾îÀÇ Á¡ÇÁÈ½¼ö¸¦ ÆÄ¶ó¹ÌÅÍ·Î ¹ŞÀº ¼ö ¸¸Å­ ÃÊ±âÈ­ÇÏ´Â ¸Ş¼ÒµåÀÌ´Ù. ÇÃ·¹ÀÌ¾î°¡ ¹Ù´Ú¿¡ ´ê¾ÒÀ» ¶§ ºÒ·Á Á¡ÇÁ È½¼ö¸¦ 0È¸·Î ÃÊ±âÈ­ÇÏ´Âµ¥ »ç¿ëµÈ´Ù.
+	// í”Œë ˆì´ì–´ì˜ ì í”„íšŸìˆ˜ë¥¼ íŒŒë¼ë¯¸í„°ë¡œ ë°›ì€ ìˆ˜ ë§Œí¼ ì´ˆê¸°í™”í•˜ëŠ” ë©”ì†Œë“œì´ë‹¤. í”Œë ˆì´ì–´ê°€ ë°”ë‹¥ì— ë‹¿ì•˜ì„ ë•Œ ë¶ˆë ¤ ì í”„ íšŸìˆ˜ë¥¼ 0íšŒë¡œ ì´ˆê¸°í™”í•˜ëŠ”ë° ì‚¬ìš©ëœë‹¤.
 	{
-		player_JumpCount = n;	//0´Ü(Á¡ÇÁ¾ÈÇÔ), 1´Ü , 2´Ü Á¡ÇÁ¸¦ »óÅÂ¸¦ ³Ö¾îÁØ´Ù
+		player_JumpCount = n;	//0ë‹¨(ì í”„ì•ˆí•¨), 1ë‹¨ , 2ë‹¨ ì í”„ë¥¼ ìƒíƒœë¥¼ ë„£ì–´ì¤€ë‹¤
 	}
 
 	@Override
 	public void keyPressed(KeyEvent arg0) {	
-	// keyListener ÀÎÅÍÆäÀÌ½ºÀÇ ¸Ş¼Òµå¸¦ ±¸ÇöÇÑ °ÍÀ¸·Î,½ºÆäÀÌ½º¹Ù¸¦ ´­·¶À» ¶§ Á¡ÇÁÈ½¼ö¿Í key°¡ ´­·È´ÂÁöÀÇ booleanº¯¼ö¸¦ °»½ÅÇÑ´Ù.
+	// keyListener ì¸í„°í˜ì´ìŠ¤ì˜ ë©”ì†Œë“œë¥¼ êµ¬í˜„í•œ ê²ƒìœ¼ë¡œ,ìŠ¤í˜ì´ìŠ¤ë°”ë¥¼ ëˆŒë €ì„ ë•Œ ì í”„íšŸìˆ˜ì™€ keyê°€ ëˆŒë ¸ëŠ”ì§€ì˜ booleanë³€ìˆ˜ë¥¼ ê°±ì‹ í•œë‹¤.
 		// TODO Auto-generated method stub
-		if(arg0.getKeyCode() == KeyEvent.VK_SPACE)	// ½ºÆäÀÌ½º Å°¸¦ ´©¸£¸é
+		if(arg0.getKeyCode() == KeyEvent.VK_SPACE)	// ìŠ¤í˜ì´ìŠ¤ í‚¤ë¥¼ ëˆ„ë¥´ë©´
 		{
-			player_JumpCount++;	// Á¡ÇÁÄ«¿îÆ® Áõ°¡
-			KeyUp = true;		// ½ºÆäÀÌ½º¹Ù ´­·¶´Ù ‹ »óÅÂ
+			player_JumpCount++;	// ì í”„ì¹´ìš´íŠ¸ ì¦ê°€
+			KeyUp = true;		// ìŠ¤í˜ì´ìŠ¤ë°” ëˆŒë €ë‹¤ ë–ˆ ìƒíƒœ
 		}
 	}
 
 	@Override
 	public void keyReleased(KeyEvent arg0) {
-	// keyListener ÀÎÅÍÆäÀÌ½ºÀÇ ¸Ş¼Òµå¸¦ ±¸ÇöÇÑ °ÍÀ¸·Î, ÀÌ ¸Ş¼Òµå¸¦ ÀçÁ¤ÀÇÇÒ ÇÊ¿ä°¡ ¾øÀ¸¹Ç·Î ÇÏÁö ¾Ê¾Ò´Ù.
+	// keyListener ì¸í„°í˜ì´ìŠ¤ì˜ ë©”ì†Œë“œë¥¼ êµ¬í˜„í•œ ê²ƒìœ¼ë¡œ, ì´ ë©”ì†Œë“œë¥¼ ì¬ì •ì˜í•  í•„ìš”ê°€ ì—†ìœ¼ë¯€ë¡œ í•˜ì§€ ì•Šì•˜ë‹¤.
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void keyTyped(KeyEvent arg0) {	
-	// keyListener ÀÎÅÍÆäÀÌ½ºÀÇ ¸Ş¼Òµå¸¦ ±¸ÇöÇÑ °ÍÀ¸·Î,ÀÌ ¸Ş¼Òµå¸¦ ÀçÁ¤ÀÇÇÒ ÇÊ¿ä°¡ ¾øÀ¸¹Ç·Î ÇÏÁö ¾Ê¾Ò´Ù.
+	// keyListener ì¸í„°í˜ì´ìŠ¤ì˜ ë©”ì†Œë“œë¥¼ êµ¬í˜„í•œ ê²ƒìœ¼ë¡œ,ì´ ë©”ì†Œë“œë¥¼ ì¬ì •ì˜í•  í•„ìš”ê°€ ì—†ìœ¼ë¯€ë¡œ í•˜ì§€ ì•Šì•˜ë‹¤.
 		// TODO Auto-generated method stub
 
 	}
 	
 	public void playSound(File sound)
-	// À½¾ÇÆÄÀÏÀ» Àç»ıÇÏ´Â ¸Ş¼ÒµåÀÌ´Ù. ÆÄ¶ó¹ÌÅÍ·Î ¹ŞÀº À½¾ÇÆÄÀÏÀ» Àç»ıÇÏ¸ç,
-	// ¹è°æÀ½¾Ç°ú °°ÀÌ Áß°£¿¡ ¸ØÃß´Â µîÀÇ µ¿ÀÛÀÌ ÇÊ¿äÇÑ ÆÄÀÏÀÇ °æ¿ì
-	// clipÀ» ÆÄ¶ó¹ÌÅÍ·Î ¹Ş¾Æ ÀÌ¸¦ °¡´ÉÇÏµµ·Ï ¿À¹ö·ÎµùÇÑ ¸Ş¼ÒµåÀÌ´Ù.
+	// ìŒì•…íŒŒì¼ì„ ì¬ìƒí•˜ëŠ” ë©”ì†Œë“œì´ë‹¤. íŒŒë¼ë¯¸í„°ë¡œ ë°›ì€ ìŒì•…íŒŒì¼ì„ ì¬ìƒí•˜ë©°,
+	// ë°°ê²½ìŒì•…ê³¼ ê°™ì´ ì¤‘ê°„ì— ë©ˆì¶”ëŠ” ë“±ì˜ ë™ì‘ì´ í•„ìš”í•œ íŒŒì¼ì˜ ê²½ìš°
+	// clipì„ íŒŒë¼ë¯¸í„°ë¡œ ë°›ì•„ ì´ë¥¼ ê°€ëŠ¥í•˜ë„ë¡ ì˜¤ë²„ë¡œë”©í•œ ë©”ì†Œë“œì´ë‹¤.
 	{
 		try {
-            AudioInputStream stream = AudioSystem.getAudioInputStream(sound);	// sound file ·ÎºÎÅÍ ¿Àµğ¿À ÀÔ·Â StreamÀ» ÃëµæÇÕ´Ï´Ù.
-            Clip clip = AudioSystem.getClip();	//  ¿Àµğ¿À ÆÄÀÏÀÌ³ª ¿Àµğ¿À ½ºÆ®¸²ÀÇ Àç»ı¿¡ »ç¿ëÇÒ ¼ö ÀÖ´Â Å¬¸³À» ÃëµæÇÕ´Ï´Ù.
-            clip.open(stream);		// stream À¸·Î ¶óÀÎÀ» ¿­¾î, ¶óÀÎÀÌ ÇÊ¿äÇÑ system resource¸¦ È¹µæÇØ Á¶ÀÛ °¡´ÉÇÏ°Ô µÇµµ·Ï(µíÀÌ) ÇÑ´Ù.
-            clip.start();		// start ¸Ş¼­µå¸¦ »ç¿ëÇÏ¸é, ¸¶Áö¸·¿¡ Á¤ÁöÇÑ À§Ä¡·ÎºÎÅÍ Àç»ıÀÌ Àç°³µÈ´Ù.
+            AudioInputStream stream = AudioSystem.getAudioInputStream(sound);	// sound file ë¡œë¶€í„° ì˜¤ë””ì˜¤ ì…ë ¥ Streamì„ ì·¨ë“í•©ë‹ˆë‹¤.
+            Clip clip = AudioSystem.getClip();	//  ì˜¤ë””ì˜¤ íŒŒì¼ì´ë‚˜ ì˜¤ë””ì˜¤ ìŠ¤íŠ¸ë¦¼ì˜ ì¬ìƒì— ì‚¬ìš©í•  ìˆ˜ ìˆëŠ” í´ë¦½ì„ ì·¨ë“í•©ë‹ˆë‹¤.
+            clip.open(stream);		// stream ìœ¼ë¡œ ë¼ì¸ì„ ì—´ì–´, ë¼ì¸ì´ í•„ìš”í•œ system resourceë¥¼ íšë“í•´ ì¡°ì‘ ê°€ëŠ¥í•˜ê²Œ ë˜ë„ë¡(ë“¯ì´) í•œë‹¤.
+            clip.start();		// start ë©”ì„œë“œë¥¼ ì‚¬ìš©í•˜ë©´, ë§ˆì§€ë§‰ì— ì •ì§€í•œ ìœ„ì¹˜ë¡œë¶€í„° ì¬ìƒì´ ì¬ê°œëœë‹¤.
             
         } catch(Exception e) {            
-            e.printStackTrace();	// ¿¡·¯ ¸Ş¼¼ÁöÀÇ ¹ß»ı ±Ù¿øÁö¸¦ Ã£¾Æ¼­ Â÷·Ê´ë·Î Ãâ·ÂÇÑ´Ù.
+            e.printStackTrace();	// ì—ëŸ¬ ë©”ì„¸ì§€ì˜ ë°œìƒ ê·¼ì›ì§€ë¥¼ ì°¾ì•„ì„œ ì°¨ë¡€ëŒ€ë¡œ ì¶œë ¥í•œë‹¤.
         }
 	}
 	
-	public void playSound(File sound, Clip clip) {	// À½¾ÇÆÄÀÏÀ» Àç»ıÇÏ´Â ¸Ş¼ÒµåÀÌ´Ù. ÆÄ¶ó¹ÌÅÍ·Î ¹ŞÀº À½¾ÇÆÄÀÏÀ» Àç»ıÇÑ´Ù.
+	public void playSound(File sound, Clip clip) {	// ìŒì•…íŒŒì¼ì„ ì¬ìƒí•˜ëŠ” ë©”ì†Œë“œì´ë‹¤. íŒŒë¼ë¯¸í„°ë¡œ ë°›ì€ ìŒì•…íŒŒì¼ì„ ì¬ìƒí•œë‹¤.
 		try {
-            AudioInputStream stream = AudioSystem.getAudioInputStream(sound);	// sound file ·ÎºÎÅÍ ¿Àµğ¿À ÀÔ·Â StreamÀ» ÃëµæÇÕ´Ï´Ù.
-            clip.open(stream);		// stream À¸·Î ¶óÀÎÀ» ¿­¾î, ¶óÀÎÀÌ ÇÊ¿äÇÑ system resource¸¦ È¹µæÇØ Á¶ÀÛ °¡´ÉÇÏ°Ô µÇµµ·Ï(µíÀÌ) ÇÑ´Ù.
-            clip.start();		// start ¸Ş¼­µå¸¦ »ç¿ëÇÏ¸é, ¸¶Áö¸·¿¡ Á¤ÁöÇÑ À§Ä¡·ÎºÎÅÍ Àç»ıÀÌ Àç°³µÈ´Ù.
+            AudioInputStream stream = AudioSystem.getAudioInputStream(sound);	// sound file ë¡œë¶€í„° ì˜¤ë””ì˜¤ ì…ë ¥ Streamì„ ì·¨ë“í•©ë‹ˆë‹¤.
+            clip.open(stream);		// stream ìœ¼ë¡œ ë¼ì¸ì„ ì—´ì–´, ë¼ì¸ì´ í•„ìš”í•œ system resourceë¥¼ íšë“í•´ ì¡°ì‘ ê°€ëŠ¥í•˜ê²Œ ë˜ë„ë¡(ë“¯ì´) í•œë‹¤.
+            clip.start();		// start ë©”ì„œë“œë¥¼ ì‚¬ìš©í•˜ë©´, ë§ˆì§€ë§‰ì— ì •ì§€í•œ ìœ„ì¹˜ë¡œë¶€í„° ì¬ìƒì´ ì¬ê°œëœë‹¤.
             
         } catch(Exception e) {            
-            e.printStackTrace();	// ¿¡·¯ ¸Ş¼¼ÁöÀÇ ¹ß»ı ±Ù¿øÁö¸¦ Ã£¾Æ¼­ Â÷·Ê´ë·Î Ãâ·ÂÇÑ´Ù.
+            e.printStackTrace();	// ì—ëŸ¬ ë©”ì„¸ì§€ì˜ ë°œìƒ ê·¼ì›ì§€ë¥¼ ì°¾ì•„ì„œ ì°¨ë¡€ëŒ€ë¡œ ì¶œë ¥í•œë‹¤.
         }
 	}
 
-	public void stopSound(Clip clip){	// Àç»ıÁßÀÎ À½¾ÇÆÄÀÏÀ» Á¤ÁöÇÏ´Â ¸Ş¼ÒµåÀÌ´Ù.
+	public void stopSound(Clip clip){	// ì¬ìƒì¤‘ì¸ ìŒì•…íŒŒì¼ì„ ì •ì§€í•˜ëŠ” ë©”ì†Œë“œì´ë‹¤.
 
-		if(clip!=null && clip.isRunning()){		// À½¾ÇÆÄÀÏÀÌ Àç»ıµÇ°í ÀÖ°Å³ª Á¡ÇÁ½º·¹µå°¡ µ¿ÀÛÁß ÀÌ¶ó¸é
+		if(clip!=null && clip.isRunning()){		// ìŒì•…íŒŒì¼ì´ ì¬ìƒë˜ê³  ìˆê±°ë‚˜ ì í”„ìŠ¤ë ˆë“œê°€ ë™ì‘ì¤‘ ì´ë¼ë©´
 			System.out.println("just stop!");
-			clip.stop();	// »ç¿îµå¸¦ ¸ØÃá´Ù.
-			clip.close();	// ¶óÀÎÀ» ´İ¾Æ ¶óÀÎÀ¸·Î »ç¿ëÇÏ°í ÀÖ´ø system resource¸¦ ÇØ¹æ ÇÒ ¼ö ÀÖ´Â °ÍÀ» ³ªÅ¸³½´Ù.
+			clip.stop();	// ì‚¬ìš´ë“œë¥¼ ë©ˆì¶˜ë‹¤.
+			clip.close();	// ë¼ì¸ì„ ë‹«ì•„ ë¼ì¸ìœ¼ë¡œ ì‚¬ìš©í•˜ê³  ìˆë˜ system resourceë¥¼ í•´ë°© í•  ìˆ˜ ìˆëŠ” ê²ƒì„ ë‚˜íƒ€ë‚¸ë‹¤.
 		}
 	}
 }
