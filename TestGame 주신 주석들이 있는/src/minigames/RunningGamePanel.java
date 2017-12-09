@@ -1,0 +1,374 @@
+package minigames;
+
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+
+class RunningGamePanel extends JPanel implements Runnable, KeyListener{
+
+
+	private JFrame 				frame;			// 프레임 객체
+	public  float 				player_x, player_y;	// 플레이어(캐릭터)의 x,y 좌표
+	private float 				barrier_speed; 	// player, barrier speed
+	private int 				f_width, f_height;	// screen's width & height excluding window components
+	private int 				back_x = 0; 	// 전체 배경 스크롤 용 변수
+
+	private int 				cnt;			// 장애물나오는 속도를 조절할 수 있는 변수 	
+	private int 				player_JumpCount;	// 캐릭터의 점프를 카운트해서  점프x,1,2단 점프 상태를 구분해줌
+	private int 				game_Score; 	// 게임 점수 계산
+	private boolean 			KeyUp, crashed;	// 스페이스바를 눌렀다 땠을때를 알려주는 값, 충돌여부를 알려주는 값
+	
+	private JumpThread 			jt;				// 점프 스레드를 위한 객체
+	private Thread 				th;				// 메인 스레드를 위한 객체
+	private Toolkit 			tk = Toolkit.getDefaultToolkit();	//이미지를 불러오기 위한 툴킷
+	private Image 				Player_img;		// 플레이어(캐릭터)이미지
+	private Image 				BackGround_img; // 배경화면 이미지
+	private Image 				Barrier_img; 	// 장애물 이미지
+	private ArrayList<Barrier>	Barrier_List;	// 장애물이 계속해서 나오게해주는 배열
+	private Image 				buffImage; 		// 이미지의 buffImage 객체
+	private Graphics 			buffg;			// 그래픽스의 buffg 객체
+	private Barrier 			en; 			// 장애물의 이동속도 객체
+	private File 				jumpEfx, bgm;	// 점프할때효과음, 게임배경음 을 위한 객체
+	private Clip				bgmClip;		// 오디오 파일 객체
+
+	public void initKeyboardListener()	// 키보드 입력이 가능하도록 포커스를 맞춰주는 메소드이다.
+	{
+		this.addKeyListener(this);	// 현재 객체에서 사용가능하도록
+		this.setFocusable(true);	// 키보드 입력이 가능하도록 해줌
+		this.requestFocusInWindow();// 포커스를 임의로 받도록 한다
+	}
+
+	public RunningGamePanel(JFrame frame)	// RunningGamePanel 클래스 생성자이다. 인스턴스 변수 초기화와 스레드 실행을 한다.
+	{		
+		init();		// 초기화 메소드 호출
+		start();	// 게임을 다시시작하는 메소드 호출
+
+	} // RunningGamePanel
+
+	public void stop() // 게임 스레드를 중지한다.
+	{
+		th.stop();	// th객체의 스레드를 종료
+	}
+
+	public void init() // 변수초기화를 한다.
+	{		
+		System.out.println("initiating commencing");	
+		cnt 		= 0;		// 장애물 나오게하는 설정 변수
+		back_x 		= 0;		// 배경의 x좌표
+		player_x 	= 100;		// 캐릭터의 x좌표
+		player_y 	= 710;		// 캐릭터의 y좌표 
+		f_width 	= 800;		// 윈도우창의 너비
+		f_height 	= 800;		// 윈도의 창의 높이
+
+		KeyUp 		= false;	// 스페이스 바를 누르고 띄었을때 발생하는 변수 
+		crashed 	= false;	// 처음엔 충동여부를 false로 둔다
+		jt 			= new JumpThread(this);	// jt객체에 점프를 시키기위해 점프스레드를 생성한다
+
+		Barrier_List = new ArrayList<Barrier>();	// 장애물이 들어갈 배열 생성
+
+		Barrier_img = new ImageIcon("src/images/barrier_real.png").getImage();
+		// 장애물 이미지를 생성한다.
+		
+		Player_img 	= new ImageIcon("src/images/player_alive.png").getImage();
+		// 플레이어(캐릭터) 이미지를 생성한다
+
+		BackGround_img = new ImageIcon("src/images/background_.png").getImage();
+		// 전체 배경화면 이미지를 생성한다.
+
+		game_Score 	= 0;//게임 스코어 초기화
+		//		player_Speed = 10; //유저 캐릭터 움직이는 속도 설정
+		player_JumpCount = 0; // 플레이어 점프 횟수 초기화
+
+		barrier_speed = 7;	//장애물이 날라오는 속도 설정	
+		
+		jumpEfx = new File("src/sounds/jump_sound.wav");	// 점프할때 나오는 파일 삽입
+		bgm = new File("src/sounds/RunBgm.wav");			// 배경음악 삽입
+		try {
+			bgmClip = AudioSystem.getClip();	// 오디오 파일이나 오디오 스트림의 재생에 사용할 수 있는 클립을 취득합니다.
+		} catch (LineUnavailableException e) {
+			e.printStackTrace();	// 에러 메세지의 발생 근원지를 찾아서 차례대로 출력한다.
+		}
+		playSound(bgm, bgmClip);
+	}
+
+	public void start(){	// 게임 스레드를 실행한다.
+		th = new Thread(this);
+		th.start();	// run메소드(게임의 흐름)를 호출
+	} // start
+
+	public void run(){ 	// 게임 스레드가 작업할 것들을 구현한 메소드이다.
+		try{ 
+			while(!crashed){	// 충돌이 안된상태이면
+				KeyProcess(); 		
+				BarrierProcess();
+
+				repaint(); 	//  화면을 다시 그려줌
+
+				Thread.sleep(15);	// 0.015초 만큼 스레드를 멈춰서 적당한 스피드를 내게한다 
+				cnt++;				// 특정값이 됬을때 장애물이 등장하게하는 cnt변수를 증가시킨다
+			}
+			stopSound(bgmClip);	// 충돌이 되었다면 음악을 멈춰준다
+			gameContinue();		// 게임 재시작 여부
+		} catch (Exception e){}
+	} // run
+
+	public void gameContinue()	// 게임오버가 되면 게임을 다시할 것인지, 메뉴로 되돌아갈 것인지를 묻는 창을 띄우는 메소드이다. 
+	{
+		int result;
+
+		result = JOptionPane.showConfirmDialog(this, 	// 현재 프레임에서 출력
+				"YOUR GRADE IS " + game_Score + "! CONTINUE?",	// 출력할 문자
+				"GAME OVER", 									// 타이틀		
+				JOptionPane.YES_NO_OPTION,		// YES, NO 두개의 선택사항
+				JOptionPane.PLAIN_MESSAGE);		// 알림창의 메시지 아이콘 없음
+		
+		if(result == JOptionPane.YES_OPTION) {	// 확인창의 YES버튼을 누르면
+			System.out.println("YES");
+			init();		// 게임 초기화 메소드 호출
+			start();	// 게임을 다시 시작하는 메소드 호출
+		}
+		else if(result == JOptionPane.NO_OPTION) {	// 확인창의 NO버튼을 누르면
+			System.out.println("NO");
+
+			Rectangle r = frame.getBounds();	
+			frame.setSize(r.width, r.height - 1);	// frame의 크기지정
+			frame.setSize(r.width, r.height + 1);	// frame의 크기지정
+
+			frame.getContentPane().removeAll();		// 게임을 재시작 또는 종료할 수 있도록 컨테이너에 있는 모든 컴포넌트를 없애준다
+			frame.getContentPane().add(new MainPanel(frame));	//
+		} else {
+			System.out.println("CANCEL");
+		}
+	} // gmaeContinue()
+
+	public void BarrierProcess(){	// 게임에 등장하는 장애물들의 생성/소멸, 위치 갱신 등을 담당하는 메소드이다.
+
+		for (int i = 0 ; i < Barrier_List.size() ; ++i )
+		{ 
+			en = (Barrier)(Barrier_List.get(i)); // 배열의 i번째 인덱스의 객체를 en 객체에 담아준다
+			en.move(); 		// 해당 장애물을 좌측으로 이동시킨다 ( Bariier 클래스에서  x좌표를 감소시킨다)
+			if(en.x < -200)	// 장애물이 특정 범위를 벗어나면
+			{ 
+				Barrier_List.remove(i); 	// 장애물을 제거한다
+			}
+
+			if(Crash(player_x, player_y, en.x, en.y, Player_img, Barrier_img))
+			{	// 플레이어의 x,y값, 장애물의 x,y값, 플레이어 이미지, 장애물 이미지를 받아서  
+				// 충돌 상태이면
+				Player_img = new ImageIcon("src/images/player_dead.png").getImage(); // change player's image when died
+				crashed = true;	// 충돌여부
+			}
+		} // for
+
+		if ( cnt % 100 == 0 )	// run에서 발생하는 cnt증가
+		{ 
+			if(cnt % 200 == 0)
+				barrier_speed += 0.5f;	// 나중에 나오는 장애물의 스피드를 약간 증가시킨다
+			int nRandom = (int)(Math.random()*12); // 0 ~ 11
+			// 1단 장애물 : 2단 장애물 : 공중장애물  (나오는 비율) = 5/12 : 4/12 : 3/12
+			if(0<=nRandom && nRandom <= 2) {
+				en = new Barrier(f_width + 190, 650, (int)barrier_speed); // frame의 width + 190, 700은 첫번째 장애물이 나오는 x,y 좌표
+			}
+			else if(nRandom == 3 || nRandom == 4) {
+				en = new Barrier(f_width + 115, 650, (int)barrier_speed); // frame의 width + 100, 700은 첫번째 장애물이 나오는 x,y 좌표
+			}
+			else if(nRandom == 5 || nRandom == 6) {
+				en = new Barrier(f_width + 235, 550, (int)barrier_speed); // ,, 2번째 장애물이 나오는 x,y 좌표
+			} 
+			else if(nRandom == 7 || nRandom == 8) {
+				en = new Barrier(f_width + 190, 550, (int)barrier_speed); // ,, 2번째 장애물이 나오는 x,y 좌표
+			} else {
+				en = new Barrier(f_width + -5, 0, (int)barrier_speed); // ,, 두번째 장애물이 나오는 x,y 좌표	
+			}
+			Barrier_List.add(en);	// 장애물 배열에 en을 add 시켜서 생성된 장애물이 배열로 
+		} // if
+	} // BarrierProcess
+
+	public boolean Crash(float x1, float y1, float x2, float y2, Image img1, Image img2){
+	// 플레이어 오브젝트와 장애물이 같은 영역에 존재하는지를 판별하고, 이에 따라	 충돌여부를 반환하는 메소드이다.
+
+		//이제 이미지 변수를 바로 받아 해당 이미지의 넓이, 높이값을 바로 계산하는 코드.
+		// x1 : 캐릭터의 x값,	y1: 캐릭터의 y값
+		// x2 : 장애물의 x값,	y2: 장애물의 y값
+		// img1 : 플레이어 이미지, 	img2 : 장애물 이미지
+		boolean check = false;	// 장애물이 출동 했는지 안했는지를 체크한다(초기에는 체크 안된 상태)
+
+		if ( Math.abs( ( x1 + img1.getWidth(null) / 2 )  	
+				- ( x2 + img2.getWidth(null) / 2 ))  
+				< ( img2.getWidth(null) / 2 + img1.getWidth(null) / 2 )
+				&& Math.abs( ( y1 + img1.getHeight(null) / 2 )  
+						- ( y2 + img2.getHeight(null) / 2 ))  
+				< ( img2.getHeight(null)/2 + img1.getHeight(null)/2 ) ) // if
+		{
+		// 절대값을 구해주는 abs함수를 이용하여 이미지 넓이, 높이값을 바로 받아 계산합니다.
+
+
+			check = true;	// 캐릭터가 장애물과 충돌했으면(if문 안에 값이 true면) check에 true를 전달합니다.
+		}else{ check = false;}	// 충돌 안했으면 계속 체크값은 false
+
+		return check; // 장애물 충돌 체크값을 가지고 있는 check의 값을 메소드에 리턴 시킵니다.
+	} // Crash
+
+
+	public void paint(Graphics g){	
+	// 이 메소드는 repaint메소드가 불릴 때 자동으로 불리는 함수로, 각 오브젝트들의 갱신된 새로운 위치에 맞게 그림을 그리도록 재정의되었다.
+		Draw_Background(g); // 배경 이미지 그리기 메소드 실행
+		Draw_Player(g); 	// 플레이어 이미지를 그리는 메소드 실행
+		Draw_Barrier(g);	// 장애물 이미지를 그리는 메소드 실행
+		Draw_StatusText(g);	//상태 표시 텍스트를 그리는 메소드 실행
+	}
+
+	public void update(Graphics g){
+	// 이 메소드는 repaint메소드가 불릴 때 자동으로 불리는 함수로, 더블버퍼링을 위해 다시 재정의 되었다.
+		buffImage = createImage(f_width, f_height); 
+		buffg = buffImage.getGraphics();
+		paint(buffg);	
+		// buffg 에있는 이미지를 그려주어 repaint시에도 화면이 깜빡이지 않게해준다
+		g.drawImage(buffImage, 0, 0, this); 
+	}
+
+	public void Draw_Background(Graphics g){
+		//배경 이미지를 그리는 부분
+
+		if(back_x > -5600) {
+			// 기본 값이 0인 back_x(배경이미지의 x좌표)가 -5600 보다 크면 실행
+			g.drawImage(BackGround_img, back_x, 0, this);
+			// drawIamge(Image img, int x, int y,ImageObserver observer);
+			g.drawImage(BackGround_img, back_x + 5600, 0, this);
+		} else { 
+			back_x = 0;	// 배경을 처음 x좌표로 돌려놔 배경이 계속 나오도록 한다
+		}
+
+		back_x -= 3;	//back_x를 0에서 -3만큼 계속 줄이므로 배경이미지의 x좌표는
+						//계속 좌측으로 이동한다. 그러므로 전체 배경은 천천히 좌측으로 움직이게 된다.
+		game_Score += 1;	// -3 만큼 움직일때 마다 game_Score 값은 증가시킨다
+	} // Draw_Background
+
+	public void Draw_Player(Graphics g) { 	
+	// 이 메소드는 paint메소드에서 불린다. 매 프레임마다 갱신된 위치에 플레이어 오브젝트를 그린다.
+		g.drawImage(Player_img, (int)player_x, (int)player_y, this);
+	}
+
+	public void Draw_Barrier(Graphics g) { 	
+	// 이 메소드는 paint메소드에서 불린다. 매 프레임마다 갱신된 위치에 장애물들을 그린다.
+		for (int i = 0 ; i < Barrier_List.size() ; ++i ){
+			en = (Barrier)(Barrier_List.get(i));
+			g.drawImage(Barrier_img, en.x, en.y, this);
+		}
+	}
+
+	public void Draw_StatusText(Graphics g){ 
+	// 이 메소드는 paint메소드에서 불린다. 매 프레임마다 갱신된 점수레이블을 그린다. ( 게임 스코어 출력 텍스트 )
+
+		g.setFont(new Font("Defualt", Font.BOLD, 20));
+		// 폰트 설정을 합니다.  기본폰트, 굵게, 사이즈 20
+		String strFormat = String.format("SCORE : %06d M", game_Score);
+		// 게임스코어를 출력 해주는 변수
+		g.drawString(strFormat, 600, 70);
+		// 좌표 x : 600, y : 70에 스코어를 표시합니다.
+	}
+
+	public void KeyProcess(){	
+	// 매 프레임이 갱신될때마다 불리며 인풋을 받는 메소드이다.
+	// 스페이스바가 눌렸을 경우 플레이어 오브젝트의 점프 애니메이션을 실행하며, 2번 이상의 입력을 제한하는 역할도 한다.
+		
+		// System.out.println(KeyUp + ", " + player_JumpCount);
+		if(KeyUp == true && player_JumpCount<=2) 
+		{	// 스페이스가 눌렀다 땐 상태이고, 점프가 2단 점프 이하이면
+			if(jt.isRunning())	// 점프하고 있는 상태라면
+			{
+				jt.stop();	// 점프스레드를 종료시킨다
+			}
+			jt = new JumpThread(this);	// 새로운 점프스레드 생성
+			jt.start();	// 점프 스레드에 있는 start 메소드를 호출
+			playSound(jumpEfx);	// 점프할때 사운드효과를 준다
+		}
+
+		KeyUp = false;	// 스페이스바 상태 초기화
+	} // KeyProcess
+
+	public void setJumpCount(int n)
+	// 플레이어의 점프횟수를 파라미터로 받은 수 만큼 초기화하는 메소드이다. 플레이어가 바닥에 닿았을 때 불려 점프 횟수를 0회로 초기화하는데 사용된다.
+	{
+		player_JumpCount = n;	//0단(점프안함), 1단 , 2단 점프를 상태를 넣어준다
+	}
+
+	@Override
+	public void keyPressed(KeyEvent arg0) {	
+	// keyListener 인터페이스의 메소드를 구현한 것으로,스페이스바를 눌렀을 때 점프횟수와 key가 눌렸는지의 boolean변수를 갱신한다.
+		// TODO Auto-generated method stub
+		if(arg0.getKeyCode() == KeyEvent.VK_SPACE)	// 스페이스 키를 누르면
+		{
+			player_JumpCount++;	// 점프카운트 증가
+			KeyUp = true;		// 스페이스바 눌렀다 떈 상태
+		}
+	}
+
+	@Override
+	public void keyReleased(KeyEvent arg0) {
+	// keyListener 인터페이스의 메소드를 구현한 것으로, 이 메소드를 재정의할 필요가 없으므로 하지 않았다.
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void keyTyped(KeyEvent arg0) {	
+	// keyListener 인터페이스의 메소드를 구현한 것으로,이 메소드를 재정의할 필요가 없으므로 하지 않았다.
+		// TODO Auto-generated method stub
+
+	}
+	
+	public void playSound(File sound)
+	// 음악파일을 재생하는 메소드이다. 파라미터로 받은 음악파일을 재생하며,
+	// 배경음악과 같이 중간에 멈추는 등의 동작이 필요한 파일의 경우
+	// clip을 파라미터로 받아 이를 가능하도록 오버로딩한 메소드이다.
+	{
+		try {
+            AudioInputStream stream = AudioSystem.getAudioInputStream(sound);	// sound file 로부터 오디오 입력 Stream을 취득합니다.
+            Clip clip = AudioSystem.getClip();	//  오디오 파일이나 오디오 스트림의 재생에 사용할 수 있는 클립을 취득합니다.
+            clip.open(stream);		// stream 으로 라인을 열어, 라인이 필요한 system resource를 획득해 조작 가능하게 되도록(듯이) 한다.
+            clip.start();		// start 메서드를 사용하면, 마지막에 정지한 위치로부터 재생이 재개된다.
+            
+        } catch(Exception e) {            
+            e.printStackTrace();	// 에러 메세지의 발생 근원지를 찾아서 차례대로 출력한다.
+        }
+	}
+	
+	public void playSound(File sound, Clip clip) {	// 음악파일을 재생하는 메소드이다. 파라미터로 받은 음악파일을 재생한다.
+		try {
+            AudioInputStream stream = AudioSystem.getAudioInputStream(sound);	// sound file 로부터 오디오 입력 Stream을 취득합니다.
+            clip.open(stream);		// stream 으로 라인을 열어, 라인이 필요한 system resource를 획득해 조작 가능하게 되도록(듯이) 한다.
+            clip.start();		// start 메서드를 사용하면, 마지막에 정지한 위치로부터 재생이 재개된다.
+            
+        } catch(Exception e) {            
+            e.printStackTrace();	// 에러 메세지의 발생 근원지를 찾아서 차례대로 출력한다.
+        }
+	}
+
+	public void stopSound(Clip clip){	// 재생중인 음악파일을 정지하는 메소드이다.
+
+		if(clip!=null && clip.isRunning()){		// 음악파일이 재생되고 있거나 점프스레드가 동작중 이라면
+			System.out.println("just stop!");
+			clip.stop();	// 사운드를 멈춘다.
+			clip.close();	// 라인을 닫아 라인으로 사용하고 있던 system resource를 해방 할 수 있는 것을 나타낸다.
+		}
+	}
+}
