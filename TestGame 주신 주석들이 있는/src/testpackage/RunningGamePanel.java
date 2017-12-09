@@ -138,7 +138,7 @@ class RunningGamePanel extends JPanel implements Runnable, KeyListener{
 		int result;
 
 		result = JOptionPane.showConfirmDialog(this, 	// 현재 프레임에서 출력
-				"YOUR GRADE IS " + game_Score + "! CONTINUE?",	// 출력할 문자
+				"YOUR SCORE IS " + game_Score + "! CONTINUE?",	// 출력할 문자
 				"GAME OVER", 									// 타이틀		
 				JOptionPane.YES_NO_OPTION,		// YES, NO 두개의 선택사항
 				JOptionPane.PLAIN_MESSAGE);		// 알림창의 메시지 아이콘 없음

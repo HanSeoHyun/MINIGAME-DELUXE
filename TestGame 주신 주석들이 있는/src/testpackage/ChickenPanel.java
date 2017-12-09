@@ -276,7 +276,7 @@ public class ChickenPanel extends JPanel {
 		int result;
 
 		result = JOptionPane.showConfirmDialog(this, 
-				"YOUR GRADE IS " + nScore + "! CONTINUE?",
+				"YOUR SCORE IS " + nScore + "! CONTINUE?",
 				"GAME OVER!!",
 				JOptionPane.YES_NO_OPTION ); // 재도전 또는 메뉴 물음 팝업
 
